@@ -28,6 +28,10 @@ defmodule Weatherex.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [
+      {:httpoison, "~> 0.11.2"},
+      {:poison, "~> 3.1"},
+      {:websocket_client, "~> 1.2"},
+    ]
   end
 end

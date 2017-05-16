@@ -16,6 +16,7 @@ defmodule Weatherex.CLI do
   end
 
   defp process(city) do
-    IO.inspect(city)
+    Weatherex.Supervisor.start_link(city)
+    Process.sleep(:infinity)
   end
 end

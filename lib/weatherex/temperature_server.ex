@@ -4,8 +4,8 @@ defmodule Weatherex.TemperatureServer do
   end
 
   @doc """
-  Saves given data and if at least two exist returns {pid, temp, city} tuples
-  for the lowest and highest temperature.
+  Saves given reading and if readings from at least two cities exist
+  returns {pid, {temp, city}} tuples for the lowest and highest temperature.
   """
   def save_temperature(temp, pid, city) do
     case Agent.get_and_update(__MODULE__, fn

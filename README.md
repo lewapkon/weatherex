@@ -14,6 +14,7 @@ Command line app that:
 ## Usage
 
 ```bash
+mix deps.get
 mix escript.build
 ./weatherex [city]
 ```

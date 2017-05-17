@@ -20,4 +20,4 @@ erl_crash.dump
 *.ez
 
 # Escript binary file
-weatherex
+/weatherex

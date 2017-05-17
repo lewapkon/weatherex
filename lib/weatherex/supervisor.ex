@@ -8,6 +8,8 @@ defmodule Weatherex.Supervisor do
   def init(city) do
     children = [
       worker(Weatherex.HTTPHandler, [city]),
+      worker(Weatherex.WSHandler, []),
+      worker(Weatherex.TemperatureServer, []),
     ]
 
     supervise(children, strategy: :one_for_one)

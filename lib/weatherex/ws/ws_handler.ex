@@ -4,13 +4,7 @@ defmodule Weatherex.WSHandler do
   @behaviour :websocket_client
   @city "Bent Oaks, DeLand"
   @url "wss://ws.weatherflow.com/swd/data?api_key=20c70eae-e62f-4d3b-b3a4-8586e90f3ac8"
-  @msg """
-  {
-    "type": "listen_start",
-    "device_id": 1110,
-    "id": "2098388936"
-  }
-  """
+  @init_msg "{ \"type\": \"listen_start\", \"device_id\": 1110, \"id\": \"2098388936\" }"
 
   def start_link do
     :crypto.start()
@@ -18,44 +12,47 @@ defmodule Weatherex.WSHandler do
     :websocket_client.start_link(@url, __MODULE__, [])
   end
 
-  def init([]) do
-    {:once, []}
+  def init(state) do
+    {:once, state}
   end
 
-  def onconnect(_req, []) do
-    {:ok, []}
+  def onconnect(_req, state) do
+    {:ok, state}
   end
 
-  def ondisconnect(_reason, []) do
-    {:reconnect, []}
+  def ondisconnect(_reason, state) do
+    {:reconnect, state}
   end
 
-  def websocket_handle({:pong, _}, _req, []) do
-    {:ok, []}
+  def websocket_handle({:pong, _}, _req, state) do
+    {:ok, state}
   end
 
-  def websocket_handle({:text, text}, _req, []) do
+  def websocket_handle({:text, text}, _req, state) do
     data = text
     |> Poison.Parser.parse!
 
     case Map.fetch(data, "type") do
       {:ok, "obs_air"} ->
-        %{"obs" => [[_, _, temp, _, _, _, _, _]]} = data
-        case Weatherex.TemperatureServer.save_temperature(temp, self(), @city) do
+        case Weatherex.TemperatureServer.save_temperature(
+            get_temperature(data), self(), @city) do
           nil -> nil
           data -> print(data)
         end
-        {:ok, []}
+        {:ok, state}
+
       {:ok, "connection_opened"} ->
-        {:reply, {:text, @msg}, []}
+        {:reply, {:text, @init_msg}, state}
       _ ->
-        {:ok, []}
+        {:ok, state}
     end
   end
 
-  def websocket_info({:print, data}, _req, []) do
+  defp get_temperature(%{"obs" => [[_, _, temp, _, _, _, _, _]]}), do: temp
+
+  def websocket_info({:print, data}, _req, state) do
     print(data)
-    {:ok, []}
+    {:ok, state}
   end
 
   def websocket_terminate(reason, _req, []) do

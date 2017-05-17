@@ -1,10 +1,9 @@
 defmodule Weatherex.WSHandler do
+  use Weatherex.TemperaturePrinter
+
   @behaviour :websocket_client
-
   @city "Bent Oaks, DeLand"
-
   @url "wss://ws.weatherflow.com/swd/data?api_key=20c70eae-e62f-4d3b-b3a4-8586e90f3ac8"
-
   @msg """
   {
     "type": "listen_start",
@@ -57,15 +56,6 @@ defmodule Weatherex.WSHandler do
   def websocket_info({:print, data}, _req, []) do
     print(data)
     {:ok, []}
-  end
-
-  defp print({{low_pid, _low}, _high} = data)
-      when low_pid == self() do
-    Weatherex.TemperaturePrinter.print(data)
-  end
-
-  defp print({{low_pid, _low}, _high} = data) do
-    send low_pid, {:print, data}
   end
 
   def websocket_terminate(reason, _req, []) do

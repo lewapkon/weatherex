@@ -1,5 +1,6 @@
 defmodule Weatherex.HTTPHandler do
   use GenServer
+  use Weatherex.TemperaturePrinter
 
   @interval 1000 * 3 # 3 seconds
 
@@ -27,15 +28,6 @@ defmodule Weatherex.HTTPHandler do
   def handle_info({:print, data}, city) do
     print(data)
     {:noreply, city}
-  end
-
-  defp print({{low_pid, _low}, _high} = data)
-      when low_pid == self() do
-    Weatherex.TemperaturePrinter.print(data)
-  end
-
-  defp print({{low_pid, _low}, _high} = data) do
-    send low_pid, {:print, data}
   end
 
   defp schedule_request do
